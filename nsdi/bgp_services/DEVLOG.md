@@ -15,6 +15,11 @@ Responsibilities:
 - common BIRD patch helpers
 - shared control/observation path constants
 
+Current note:
+
+- address stringification in endpoint/state metadata is only to make JSON serialization stable
+- it does not change exposure semantics or service boundaries
+
 ### `seedemu/services/BgpControlService.py`
 
 Core router-local BGP control service.

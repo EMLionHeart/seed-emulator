@@ -1,3 +1,5 @@
+"""Shared helpers for staged BGP services."""
+
 from __future__ import annotations
 
 import json
@@ -145,17 +147,19 @@ def build_endpoint_metadata(
     *,
     scheme: str = "http",
 ) -> Dict[str, Any]:
-    internal_address = router.getLoopbackAddress()
-    if internal_address is not None:
-        internal_address = str(internal_address)
-
     return EndpointMetadata(
         asn=router.getAsn(),
         router=router.getName(),
         node_port=node_port,
         exposure=exposure,
-        internal_address=internal_address,
+        internal_address=router.getLoopbackAddress(),
     ).to_dict(scheme=scheme)
+
+
+def require_router(as_obj: Any, router_name: str) -> Router:
+    """Resolve a router explicitly by name; never infer a default router."""
+
+    return resolve_router(as_obj, router_name).router
 
 
 def path_str(path: PurePosixPath | str) -> str:
@@ -211,7 +215,7 @@ def ensure_bird_include(
     include_path: PurePosixPath | str,
     *,
     config_path: PurePosixPath | str = BIRD_CONFIG_PATH,
-    marker: str = "Managed by seedemu/services",
+    marker: str = "Managed by nsdi/bgp_services",
 ) -> bool:
     """Inject an include into bird.conf if it is not already present."""
 
@@ -239,3 +243,8 @@ def ensure_bird_include(
             patched += snippet
     node.setFile(path_str(config_path), patched)
     return True
+
+
+def render_prefix_set_match(prefixes: Iterable[str], *, indent: int = 4) -> str:
+    joined = ", ".join(prefixes)
+    return f'{" " * indent}if net ~ [ {joined} ] then return true;'

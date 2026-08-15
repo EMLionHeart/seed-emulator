@@ -14,6 +14,11 @@ on a single host.
 emu.compile(Docker(), './output/regular-docker')
 ```
 
+The Docker compiler recognizes registered `extnode` objects and compiles them
+through the standard node image, Dockerfile, naming, metadata, and Compose
+paths. A zero-interface `ExtensionNode` is emitted with `network_mode: none`;
+this special case does not change Host, Router, or other existing node output.
+
 ## Distributed Docker (`DistributedDocker`) compiler
 
 ```python
